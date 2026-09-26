@@ -1,0 +1,24 @@
+---
+import { env } from 'cloudflare:workers';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { rows } from '../../lib/data';
+
+const result = await rows<any>(env.DB, 'SELECT c.*,s.title AS service_title FROM case_studies c LEFT JOIN services s ON s.id=c.service_id WHERE c.slug=? AND c.is_published=1 LIMIT 1', Astro.params.slug ?? '');
+const study = result[0];
+if (!study) Astro.response.status = 404;
+---
+<BaseLayout title={study ? `${study.title} | Rising Design` : 'Project not found | Rising Design'} description={study?.summary || 'This project could not be found.'}>
+  {study ? (
+    <article class="container section article">
+      <a href="/case-studies" class="article__back">← All projects</a>
+      <p class="eyebrow">{study.service_title || 'Project'}</p>
+      <h1 class="section-title" style="margin-top: 8px">{study.title}</h1>
+      <p class="lead">{study.summary}</p>
+      {study.cover_image_key && <img class="article__image" src={`/media/${study.cover_image_key}`} alt={`Project: ${study.title}`} />}
+      <div class="article__body">{study.body}</div>
+      {study.pdf_attachment_key && <a class="button button--outline" style="margin-top: 24px" href={`/media/${study.pdf_attachment_key}`}>View project PDF <span aria-hidden="true">↗</span></a>}
+    </article>
+  ) : (
+    <section class="container section"><div class="empty-state"><h1>Project not found</h1><p>This project may have been removed or is no longer published.</p><a class="button" href="/case-studies" style="margin-top: 18px">Browse projects</a></div></section>
+  )}
+</BaseLayout>

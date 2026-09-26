@@ -1,0 +1,19 @@
+---
+import { env } from 'cloudflare:workers';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { rows } from '../lib/data';
+
+const services = await rows<any>(env.DB, 'SELECT id,title,slug,description,icon,short_label FROM services WHERE is_published=1 ORDER BY sort_order');
+---
+<BaseLayout title="Engineering Consultation Services | Rising Design" description="Explore design and drawing, interior visualization, estimation, project reporting, surveying and site supervision services.">
+  <section class="page-intro">
+    <div class="container page-intro__inner"><p class="eyebrow">Our services</p><h1 class="section-title">Practical support for your project</h1><p class="lead">From early planning to construction coordination, we can shape our support around your goals and the work ahead.</p></div>
+  </section>
+  <section class="section section--compact">
+    <div class="container">
+      {services.length > 0 ? <div class="service-grid">{services.map((service: any) => <ServiceCard service={service} />)}</div> : <div class="empty-state"><h2>Services are being updated</h2><p>Contact us and tell us what you need. We’ll help identify a suitable next step.</p></div>}
+      <div style="margin-top: 30px"><a href="/contact" class="button">Ask about a service</a></div>
+    </div>
+  </section>
+</BaseLayout>

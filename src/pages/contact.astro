@@ -1,0 +1,40 @@
+---
+import { env } from 'cloudflare:workers';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { rows, company } from '../lib/data';
+import SocialLinks from '../components/SocialLinks.astro';
+import { maxUploadBytes } from '../lib/uploads';
+
+const services = await rows<any>(env.DB, 'SELECT title FROM services WHERE is_published=1 ORDER BY sort_order');
+const maxUploadMB = Math.ceil(maxUploadBytes(env.MAX_UPLOAD_BYTES) / (1024 * 1024));
+const token = crypto.randomUUID();
+Astro.cookies.set('csrf_token', token, { httpOnly: true, secure: Astro.url.protocol === 'https:', sameSite: 'strict', path: '/', maxAge: 3600 });
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+<BaseLayout title="Request a Consultation | Rising Design" description="Tell Rising Design about your engineering or construction project and request a consultation.">
+  <section class="page-intro">
+    <div class="container page-intro__inner"><p class="eyebrow">Contact</p><h1 class="section-title">Tell us about your project</h1><p class="lead">Share a few details and we’ll get back to you to discuss a suitable next step.</p></div>
+  </section>
+  <section class="section section--compact">
+    <div class="container contact-grid">
+      <form id="consultation-form" class="contact-form" action="/api/inquiries" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value={token} />
+        <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" tabindex="-1" autocomplete="off" /></div>
+        <div id="form-result" class="form-status" role="status" aria-live="polite"></div>
+        <div class="form-grid">
+          <div class="field"><label for="name">Your name *</label><input id="name" name="name" required minlength="2" maxlength="100" autocomplete="name" /></div>
+          <div class="field"><label for="email">Email *</label><input id="email" type="email" name="email" required maxlength="254" autocomplete="email" /></div>
+          <div class="field"><label for="phone">Phone *</label><input id="phone" type="tel" name="phone" required minlength="5" maxlength="30" autocomplete="tel" pattern="[+()0-9. -]{5,30}" title="Use digits and common phone symbols such as +, spaces, hyphens or parentheses." /></div>
+          <div class="field"><label for="project_type">Project type *</label><select id="project_type" name="project_type" required><option value="">Choose a service</option>{services.map((service: any) => <option value={service.title}>{service.title}</option>)}<option value="Other / not sure">Other / not sure</option></select></div>
+          <div class="field field--full"><label for="message">How can we help? *</label><textarea id="message" name="message" required minlength="10" maxlength="5000" placeholder="Briefly describe your project, location and timeline."></textarea></div>
+          <div class="field field--full"><label for="attachment">Optional drawing or specification</label><input id="attachment" name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" /><small>PDF, JPG, PNG or WebP; maximum {maxUploadMB} MB. Please avoid uploading sensitive personal information.</small></div>
+        </div>
+        <div class="form-actions"><button id="form-submit" class="button" type="submit">Send consultation request</button><p class="form-note">Your information is used only to respond to your request. Please do not include sensitive personal information.</p></div>
+      </form>
+      <aside class="stack">
+        <div class="contact-card"><h2>Contact details</h2>{company.phones.map((phone) => <p class="contact-card__phone"><strong>{phone.label}:</strong> <a href={`tel:+${phone.number}`}>{phone.display}</a></p>)}<p><a href={`mailto:${company.email}`}>{company.email}</a></p><p>{company.location}</p><h3 class="contact-card__social-title">Connect with us</h3><SocialLinks /></div>
+        <div class="contact-card"><h2>Prefer to call?</h2><p>Call us to share a few details about your project and arrange a conversation.</p></div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

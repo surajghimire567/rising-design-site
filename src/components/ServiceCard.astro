@@ -1,0 +1,9 @@
+---
+const { service } = Astro.props;
+---
+<article class="service-card">
+  <div class="service-card__icon" aria-hidden="true">{service.icon}</div>
+  <p class="eyebrow">{service.short_label || 'Consulting'}</p>
+  <h3>{service.title}</h3>
+  <p>{service.description}</p>
+</article>

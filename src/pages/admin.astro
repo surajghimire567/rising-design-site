@@ -1,0 +1,32 @@
+---
+import { env } from 'cloudflare:workers';
+import BaseLayout from '../layouts/BaseLayout.astro';
+const mailNotificationsEnabled = Boolean(env.RESEND_API_KEY && env.NOTIFICATION_EMAIL && env.RESEND_FROM);
+---
+<BaseLayout title="Site Admin | Rising Design" description="Protected site administration." noIndex={true}>
+  <section class="container admin-shell">
+    <div class="admin-header">
+      <div><p class="eyebrow">Protected area</p><h1 class="section-title">Website content</h1><p>Manage published content and follow up on incoming consultation requests.</p></div>
+      <a class="button button--outline" href="/">View website</a>
+    </div>
+    {!mailNotificationsEnabled && <div class="admin-alert" role="status"><strong>Email alerts are not configured.</strong> New requests are saved in this inbox, but no email notifications are sent.</div>}
+    <div class="admin-grid">
+      <section class="admin-panel" aria-labelledby="content-list-heading">
+        <label for="collection"><strong id="content-list-heading">Choose content</strong></label>
+        <select id="collection" class="admin-select"><option value="services">Services</option><option value="case-studies">Case studies</option><option value="testimonials">Testimonials</option><option value="team">Team members</option><option value="inquiries">Incoming inquiries</option></select>
+        <div id="record-list" class="admin-list" aria-live="polite"></div>
+      </section>
+      <section class="admin-panel" aria-labelledby="form-title">
+        <div class="admin-panel__title"><h2 id="form-title">New record</h2><button id="new-button" class="button button--outline" type="button">New</button></div>
+        <form id="record-form" class="admin-form" enctype="multipart/form-data">
+          <input type="hidden" name="id" />
+          <div id="fields" class="admin-fields"></div>
+          <div id="form-message" class="admin-message" role="status" aria-live="polite"></div>
+          <div id="form-actions" class="admin-actions"><button class="button" type="submit">Save changes</button><button id="delete-button" class="button button--outline hidden" type="button">Delete record</button></div>
+        </form>
+      </section>
+    </div>
+    <p class="admin-note">Published content appears on the public site immediately. Only publish project stories, biographies and testimonials that have been checked and approved.</p>
+  </section>
+  <script is:inline src="/scripts/admin.js" defer></script>
+</BaseLayout>
