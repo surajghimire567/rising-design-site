@@ -1,14 +1,13 @@
 import { env } from 'cloudflare:workers';
 export const company = {
   name: env.COMPANY_NAME || 'Rising Design and Construction Pvt. Ltd.',
-  shortName: 'Rising Design',
+  shortName: 'Rising Design & Construction',
   phones: [
-    { label: 'Nepal', number: '9843069355', display: '+977 9843069355' },
-    { label: 'Nepal', number: '9843728872', display: '+977 9843728872' },
-    { label: 'WhatsApp', number: '9779714597995', display: '+977 9714597995' },
+    { label: 'Contact No', number: '9779714597995', display: '+977 9714597995' },
   ],
   email: 'risingdesignandconstruction@gmail.com',
-  location: 'Tinpiple, Kathmandu, Nepal',
+  location: 'Jarankhu, Tarakeshwor, Kathmandu, Nepal',
+  heroLocation: 'Jarankhu',
 };
 
 export const whatsappChatUrl = `https://wa.me/9779714597995?text=${encodeURIComponent('Hi, can I know more about this?')}`;

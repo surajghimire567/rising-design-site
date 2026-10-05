@@ -36,7 +36,6 @@ button, input, select, textarea { font: inherit; }
 .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--navy); text-decoration: none; }
 .brand img { width: 50px; height: 54px; object-fit: contain; }
 .brand__name { display: block; font-size: 1rem; font-weight: 800; line-height: 1.25; }
-.brand__tagline { display: block; margin-top: 3px; color: var(--muted); font-size: .7rem; letter-spacing: .04em; }
 .site-nav { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 30px); }
 .site-nav a { color: #34465b; font-size: .91rem; font-weight: 650; text-decoration: none; transition: color .18s ease; }
 .site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--blue); }
@@ -233,7 +232,7 @@ button, input, select, textarea { font: inherit; }
   .hero__inner { grid-template-columns: 1fr 1fr; gap: 34px; }
   .service-grid, .project-grid, .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 760px) {
+@media (max-width: 940px) {
   .site-nav { display: none; }
   .mobile-nav { display: block; }
 }
@@ -243,7 +242,6 @@ button, input, select, textarea { font: inherit; }
   .site-nav { display: none; }
   .mobile-nav { display: block; }
   .brand img { width: 43px; height: 47px; }
-  .brand__tagline { font-size: .65rem; }
   .hero__inner, .content-grid, .contact-grid { grid-template-columns: 1fr; }
   .hero__inner { gap: 34px; padding-block: 54px; }
   .hero__artwork { max-width: 560px; transform: none; }

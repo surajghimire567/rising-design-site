@@ -8,7 +8,7 @@ const services = await rows<any>(env.DB, 'SELECT id,title,slug,description,icon,
 const studies = await rows<any>(env.DB, 'SELECT title,slug,summary,cover_image_key FROM case_studies WHERE is_published=1 ORDER BY project_date DESC LIMIT 3');
 const testimonials = await rows<any>(env.DB, 'SELECT client_name,company,quote FROM testimonials WHERE is_published=1 ORDER BY created_at DESC LIMIT 2');
 ---
-<BaseLayout title="Engineering Design & Construction Consultation | Rising Design" description="Design, drawing, estimating, surveying and construction consultation for residential and commercial projects in Kathmandu, Nepal.">
+<BaseLayout title="Engineering Design & Construction Consultation | Rising Design & Construction" description="Design, drawing, estimating, surveying and construction consultation for residential and commercial projects in Jarankhu, Tarakeshwor, Kathmandu, Nepal.">
   <section class="hero">
     <div class="container hero__inner">
       <div class="hero__copy">
@@ -19,10 +19,10 @@ const testimonials = await rows<any>(env.DB, 'SELECT client_name,company,quote F
           <a class="button button--accent" href="/contact">Discuss your project <span aria-hidden="true">→</span></a>
           <a class="button button--outline" href="/services">Explore our services</a>
         </div>
-        <p class="hero__location">Based in {company.location}</p>
+        <p class="hero__location">Based in {company.heroLocation}</p>
       </div>
       <div class="hero__artwork">
-        <img src="/images/company-flyer.png" alt="Rising Design and Construction service overview" width="2086" height="754" fetchpriority="high" />
+        <img src="/images/company-flyer.png" alt="Rising Design & Construction service overview" width="2086" height="754" fetchpriority="high" />
       </div>
     </div>
   </section>

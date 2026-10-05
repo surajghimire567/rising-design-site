@@ -5,9 +5,9 @@ import { rows } from '../lib/data';
 
 const people = await rows<any>(env.DB, 'SELECT name,role,bio,photo_key FROM team_members WHERE is_published=1 ORDER BY sort_order');
 ---
-<BaseLayout title="About Rising Design & Construction" description="Learn about Rising Design and Construction and how the team approaches project design and coordination.">
+<BaseLayout title="About Rising Design & Construction" description="Learn about Rising Design & Construction and how the team approaches project design and coordination.">
   <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">About us</p><h1 class="section-title">Engineering with a human perspective</h1><p class="lead">Rising Design and Construction provides design, drawing and construction consultation for clients in Kathmandu and beyond.</p></div>
+    <div class="container page-intro__inner"><p class="eyebrow">About us</p><h1 class="section-title">Engineering with a human perspective</h1><p class="lead">Rising Design &amp; Construction provides design, drawing and construction consultation from Jarankhu, Tarakeshwor, Kathmandu.</p></div>
   </section>
   <section class="section">
     <div class="container content-grid">
