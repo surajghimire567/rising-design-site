@@ -1,0 +1,12 @@
+---
+const { eyebrow, title, lead, crumb } = Astro.props as { eyebrow: string; title: string; lead?: string; crumb?: string };
+---
+<section class="page-intro">
+  <div class="container page-intro__inner">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">{crumb || eyebrow}</span></nav>
+    <p class="eyebrow eyebrow--light">{eyebrow}</p>
+    <h1 class="section-title">{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+</section>

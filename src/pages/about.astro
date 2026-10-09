@@ -1,24 +1,45 @@
 ---
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { rows } from '../lib/data';
+import PageIntro from '../components/PageIntro.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import { company, rows, strengths } from '../lib/data';
 
 const people = await rows<any>(env.DB, 'SELECT name,role,bio,photo_key FROM team_members WHERE is_published=1 ORDER BY sort_order');
+const values = [
+  { title: 'Listen first', text: 'Every project starts with understanding your priorities, your site and the decisions ahead.' },
+  { title: 'Explain clearly', text: 'Drawings, numbers and options presented in plain language, so you can decide with confidence.' },
+  { title: 'Stay accountable', text: 'Visible next steps, honest updates and follow-through from design to site.' },
+];
 ---
-<BaseLayout title="About Rising Design & Construction" description="Learn about Rising Design & Construction and how the team approaches project design and coordination.">
-  <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">About us</p><h1 class="section-title">Engineering with a human perspective</h1><p class="lead">Rising Design &amp; Construction provides design, drawing and construction consultation from Jarankhu, Tarakeshwor, Kathmandu.</p></div>
-  </section>
+<BaseLayout title="About Us | Rising Design & Construction, Kathmandu" description="Rising Design & Construction is an engineering design and construction consultancy based in Jarankhu, Tarakeshwor, Kathmandu.">
+  <PageIntro eyebrow="About us" title="Engineering with a human perspective" lead={`${company.name} provides design, drawing, consulting and construction support from ${company.location}.`} />
   <section class="section">
     <div class="container content-grid">
-      <div><p class="eyebrow">Our approach</p><h2>Clear advice. Practical next steps.</h2><p>Every project begins with listening: understanding your priorities, the site and the decisions ahead. We aim to make technical work easier to follow and next steps easier to act on.</p><a href="/contact" class="text-link">Talk with our team <span aria-hidden="true">→</span></a></div>
-      <div class="panel" style="padding: 28px"><p class="eyebrow">How we work</p><ul class="process-list"><li>Understand your brief and priorities</li><li>Develop clear technical options</li><li>Coordinate suitable design and site support</li><li>Keep decisions and next steps visible</li></ul></div>
+      <div data-reveal>
+        <p class="eyebrow">Our story</p>
+        <h2 class="section-title section-title--sm">Clear advice. Practical next steps.</h2>
+        <p>Building is one of the biggest investments a family or business makes. Rising Design &amp; Construction exists to make that process less stressful — by combining sound engineering with honest, approachable communication.</p>
+        <p>Whether you need a municipality drawing set, a 3D visual of your new interior, a reliable estimate or someone experienced watching over the site, we focus on getting the details right and keeping you informed.</p>
+        <a href="/contact" class="text-link">Talk with our team <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="panel panel--accent" data-reveal>
+        <p class="eyebrow">What you can expect</p>
+        <ul class="check-list">{strengths.map((s) => <li><strong>{s.title}</strong><span>{s.text}</span></li>)}</ul>
+      </div>
     </div>
   </section>
-  <section class="section section--surface">
+  <section class="section section--navy">
+    <div class="container">
+      <div class="section-heading section-heading--center"><div class="section-heading__copy"><p class="eyebrow eyebrow--light">Our values</p><h2 class="section-title">How we work with every client</h2></div></div>
+      <div class="value-grid">{values.map((v, i) => <article class="feature" data-reveal><span class="process__num">{String(i + 1).padStart(2, '0')}</span><h3>{v.title}</h3><p>{v.text}</p></article>)}</div>
+    </div>
+  </section>
+  {people.length > 0 && <section class="section">
     <div class="container">
       <div class="section-heading"><div class="section-heading__copy"><p class="eyebrow">The people behind the work</p><h2 class="section-title">Meet our team</h2></div></div>
-      {people.length > 0 ? <div class="team-grid">{people.map((person: any) => <article class="team-card">{person.photo_key ? <img src={`/media/${person.photo_key}`} alt={`Portrait of ${person.name}`} loading="lazy" /> : <div class="team-card__placeholder" aria-hidden="true">◇</div>}<h3>{person.name}</h3><p class="team-card__role">{person.role}</p><p>{person.bio}</p></article>)}</div> : <div class="empty-state" style="margin-top: 28px"><h3>Team profiles are being prepared</h3><p>Contact us to speak with a member of the team about your project.</p></div>}
+      <div class="team-grid">{people.map((person: any) => <article class="team-card" data-reveal>{person.photo_key ? <img src={`/media/${person.photo_key}`} alt={`Portrait of ${person.name}`} loading="lazy" decoding="async" width="400" height="400" /> : <div class="team-card__placeholder" aria-hidden="true">{String(person.name).trim().charAt(0)}</div>}<h3>{person.name}</h3><p class="team-card__role">{person.role}</p><p>{person.bio}</p></article>)}</div>
     </div>
-  </section>
+  </section>}
+  <CtaBanner />
 </BaseLayout>

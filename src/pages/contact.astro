@@ -1,39 +1,58 @@
 ---
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { rows, company } from '../lib/data';
+import PageIntro from '../components/PageIntro.astro';
 import SocialLinks from '../components/SocialLinks.astro';
+import SocialIcon from '../components/SocialIcon.astro';
+import { rows, company, whatsappChatUrl } from '../lib/data';
 import { maxUploadBytes } from '../lib/uploads';
 
 const services = await rows<any>(env.DB, 'SELECT title FROM services WHERE is_published=1 ORDER BY sort_order');
+const requested = Astro.url.searchParams.get('service') ?? '';
+const preselected = services.some((s: any) => s.title === requested) ? requested : '';
 const maxUploadMB = Math.ceil(maxUploadBytes(env.MAX_UPLOAD_BYTES) / (1024 * 1024));
 const token = crypto.randomUUID();
 Astro.cookies.set('csrf_token', token, { httpOnly: true, secure: Astro.url.protocol === 'https:', sameSite: 'strict', path: '/', maxAge: 3600 });
 Astro.response.headers.set('Cache-Control', 'no-store');
+const phone = company.phones[0];
 ---
-<BaseLayout title="Request a Consultation | Rising Design" description="Tell Rising Design about your engineering or construction project and request a consultation.">
-  <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">Contact</p><h1 class="section-title">Tell us about your project</h1><p class="lead">Share a few details and we’ll get back to you to discuss a suitable next step.</p></div>
-  </section>
+<BaseLayout title="Request a Consultation | Rising Design & Construction" description="Tell Rising Design about your design, drawing or construction project in Kathmandu and request a consultation." hideFab={true}>
+  <PageIntro eyebrow="Contact" title="Tell us about your project" lead="Share a few details and we’ll get back to you to discuss a suitable next step. Prefer to talk? Call or message us directly." />
   <section class="section section--compact">
     <div class="container contact-grid">
       <form id="consultation-form" class="contact-form" action="/api/inquiries" method="post" enctype="multipart/form-data">
+        <div class="contact-form__head"><h2>Consultation request</h2><p>Fields marked <span class="req">*</span> are required.</p></div>
         <input type="hidden" name="csrf_token" value={token} />
         <div class="honeypot" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" tabindex="-1" autocomplete="off" /></div>
         <div id="form-result" class="form-status" role="status" aria-live="polite"></div>
         <div class="form-grid">
-          <div class="field"><label for="name">Your name *</label><input id="name" name="name" required minlength="2" maxlength="100" autocomplete="name" /></div>
-          <div class="field"><label for="email">Email *</label><input id="email" type="email" name="email" required maxlength="254" autocomplete="email" /></div>
-          <div class="field"><label for="phone">Phone *</label><input id="phone" type="tel" name="phone" required minlength="5" maxlength="30" autocomplete="tel" pattern="[+()0-9. -]{5,30}" title="Use digits and common phone symbols such as +, spaces, hyphens or parentheses." /></div>
-          <div class="field"><label for="project_type">Project type *</label><select id="project_type" name="project_type" required><option value="">Choose a service</option>{services.map((service: any) => <option value={service.title}>{service.title}</option>)}<option value="Other / not sure">Other / not sure</option></select></div>
-          <div class="field field--full"><label for="message">How can we help? *</label><textarea id="message" name="message" required minlength="10" maxlength="5000" placeholder="Briefly describe your project, location and timeline."></textarea></div>
-          <div class="field field--full"><label for="attachment">Optional drawing or specification</label><input id="attachment" name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" /><small>PDF, JPG, PNG or WebP; maximum {maxUploadMB} MB. Please avoid uploading sensitive personal information.</small></div>
+          <div class="field"><label for="name">Full name <span class="req">*</span></label><input id="name" name="name" required minlength="2" maxlength="100" autocomplete="name" placeholder="Your name" /></div>
+          <div class="field"><label for="phone">Phone <span class="req">*</span></label><input id="phone" type="tel" name="phone" required minlength="5" maxlength="30" autocomplete="tel" inputmode="tel" pattern="[+()0-9. -]{5,30}" placeholder="98XXXXXXXX" title="Use digits and common phone symbols such as +, spaces, hyphens or parentheses." /></div>
+          <div class="field"><label for="email">Email <span class="req">*</span></label><input id="email" type="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="you@example.com" /></div>
+          <div class="field"><label for="project_type">Service needed <span class="req">*</span></label><select id="project_type" name="project_type" required><option value="" selected={!preselected}>Choose a service</option>{services.map((service: any) => <option value={service.title} selected={service.title === preselected}>{service.title}</option>)}<option value="Other / not sure">Other / not sure</option></select></div>
+          <div class="field field--full"><label for="message">Project details <span class="req">*</span></label><textarea id="message" name="message" required minlength="10" maxlength="5000" rows="6" placeholder="Location, plot size, type of building, and your expected timeline."></textarea></div>
+          <div class="field field--full">
+            <label for="attachment">Drawing, photo or document <span class="field__optional">(optional)</span></label>
+            <label class="file-drop" for="attachment"><span class="file-drop__icon" aria-hidden="true">⇪</span><span class="file-drop__text" data-file-label>Choose a file or drag it here</span><small>PDF, JPG, PNG or WebP · up to {maxUploadMB} MB</small></label>
+            <input class="file-drop__input" id="attachment" name="attachment" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" data-max-bytes={maxUploadMB * 1024 * 1024} />
+          </div>
         </div>
-        <div class="form-actions"><button id="form-submit" class="button" type="submit">Send consultation request</button><p class="form-note">Your information is used only to respond to your request. Please do not include sensitive personal information.</p></div>
+        <div class="form-actions"><button id="form-submit" class="button button--lg" type="submit">Send consultation request <span aria-hidden="true">→</span></button><p class="form-note">We use your details only to respond to your request. Please don’t include sensitive personal information.</p></div>
       </form>
-      <aside class="stack">
-        <div class="contact-card"><h2>Contact details</h2>{company.phones.map((phone) => <p class="contact-card__phone"><strong>{phone.label}:</strong> <a href={`tel:+${phone.number}`}>{phone.display}</a></p>)}<p><a href={`mailto:${company.email}`}>{company.email}</a></p><p>{company.location}</p><h3 class="contact-card__social-title">Connect with us</h3><SocialLinks /></div>
-        <div class="contact-card"><h2>Prefer to call?</h2><p>Call us to share a few details about your project and arrange a conversation.</p></div>
+      <aside class="stack contact-aside">
+        <div class="contact-card contact-card--navy">
+          <h2>Talk to us directly</h2>
+          {phone && <a class="contact-method" href={`tel:+${phone.number}`}><span class="contact-method__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span><span><small>{phone.label}</small><strong>{phone.display}</strong></span></a>}
+          <a class="contact-method" href={whatsappChatUrl} target="_blank" rel="noopener noreferrer"><span class="contact-method__icon contact-method__icon--wa" aria-hidden="true"><SocialIcon platform="whatsapp" /></span><span><small>WhatsApp</small><strong>Start a chat</strong></span></a>
+          <a class="contact-method" href={`mailto:${company.email}`}><span class="contact-method__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span><small>Email</small><strong class="contact-method__email">{company.email}</strong></span></a>
+          <div class="contact-method contact-method--static"><span class="contact-method__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg></span><span><small>Office</small><strong>{company.location}</strong></span></div>
+        </div>
+        <div class="contact-card">
+          <h2>What happens next?</h2>
+          <ol class="mini-steps"><li>We review your request and any files.</li><li>We contact you to clarify scope and site details.</li><li>You receive a clear recommendation for next steps.</li></ol>
+          <h3 class="contact-card__social-title">Follow our work</h3>
+          <SocialLinks />
+        </div>
       </aside>
     </div>
   </section>

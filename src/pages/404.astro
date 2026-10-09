@@ -4,6 +4,11 @@ Astro.response.status = 404;
 ---
 <BaseLayout title="Page not found | Rising Design" description="The page you requested could not be found." noIndex={true}>
   <section class="container section">
-    <div class="empty-state"><p class="eyebrow">404</p><h1 class="section-title" style="margin-top: 8px">This page could not be found</h1><p>It may have moved, or the address may be incorrect.</p><a class="button" href="/" style="margin-top: 18px">Return to the homepage</a></div>
+    <div class="empty-state empty-state--hero">
+      <p class="empty-state__code" aria-hidden="true">404</p>
+      <h1 class="section-title">This page could not be found</h1>
+      <p>It may have moved, or the address may be incorrect. Try one of these instead:</p>
+      <div class="button-row button-row--center"><a class="button" href="/">Go to homepage</a><a class="button button--outline" href="/services">View services</a><a class="button button--outline" href="/contact">Contact us</a></div>
+    </div>
   </section>
 </BaseLayout>

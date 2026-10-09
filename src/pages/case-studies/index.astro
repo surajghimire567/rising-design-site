@@ -1,24 +1,19 @@
 ---
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaBanner from '../../components/CtaBanner.astro';
 import { rows } from '../../lib/data';
 
-const studies = await rows<any>(env.DB, 'SELECT c.title,c.slug,c.summary,c.cover_image_key,s.title AS service_title FROM case_studies c LEFT JOIN services s ON s.id=c.service_id WHERE c.is_published=1 ORDER BY c.project_date DESC');
+const studies = await rows<any>(env.DB, 'SELECT c.title,c.slug,c.summary,c.cover_image_key,c.project_date,s.title AS service_title FROM case_studies c LEFT JOIN services s ON s.id=c.service_id WHERE c.is_published=1 ORDER BY c.project_date DESC');
 ---
-<BaseLayout title="Selected Projects | Rising Design" description="Browse selected project stories from Rising Design and Construction.">
-  <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">Our work</p><h1 class="section-title">Projects &amp; case studies</h1><p class="lead">A closer look at the design, planning and coordination behind selected projects.</p></div>
-  </section>
-  <section class="section section--compact">
+<BaseLayout title="Projects & Case Studies | Rising Design & Construction" description="Browse selected design, drawing and construction projects by Rising Design and Construction in Kathmandu.">
+  <PageIntro eyebrow="Our work" crumb="Projects" title="Projects & case studies" lead="A closer look at the design, planning and coordination behind selected projects." />
+  <section class="section">
     <div class="container">
-      {studies.length > 0 ? <div class="project-grid">{studies.map((study: any) => (
-        <article class="project-card">
-          <a class="project-card__link" href={`/case-studies/${study.slug}`}>
-            <div class="project-card__image">{study.cover_image_key ? <img src={`/media/${study.cover_image_key}`} alt={`Project: ${study.title}`} loading="lazy" /> : <span aria-hidden="true">⌂</span>}</div>
-            <div class="project-card__copy"><p class="eyebrow">{study.service_title || 'Project'}</p><h2>{study.title}</h2><p>{study.summary}</p><span class="text-link">Read project story <span aria-hidden="true">→</span></span></div>
-          </a>
-        </article>
-      ))}</div> : <div class="empty-state"><h2>Project stories are being prepared</h2><p>Contact the team if you would like to discuss a project or learn more about our services.</p><a class="button" href="/contact" style="margin-top: 18px">Get in touch</a></div>}
+      {studies.length > 0 ? <div class="project-grid">{studies.map((study: any) => <ProjectCard study={study} headingLevel="h2" />)}</div> : <div class="empty-state"><span class="empty-state__icon" aria-hidden="true">⌂</span><h2>Our portfolio is being prepared</h2><p>We’re documenting recent projects with our clients’ permission. Contact us to see examples relevant to your project.</p><a class="button" href="/contact">Ask about our work</a></div>}
     </div>
   </section>
+  <CtaBanner />
 </BaseLayout>

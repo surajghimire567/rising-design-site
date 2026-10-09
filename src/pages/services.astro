@@ -2,18 +2,26 @@
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceCard from '../components/ServiceCard.astro';
-import { rows } from '../lib/data';
+import PageIntro from '../components/PageIntro.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import { processSteps, rows } from '../lib/data';
 
 const services = await rows<any>(env.DB, 'SELECT id,title,slug,description,icon,short_label FROM services WHERE is_published=1 ORDER BY sort_order');
 ---
-<BaseLayout title="Engineering Consultation Services | Rising Design" description="Explore design and drawing, interior visualization, estimation, project reporting, surveying and site supervision services.">
-  <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">Our services</p><h1 class="section-title">Practical support for your project</h1><p class="lead">From early planning to construction coordination, we can shape our support around your goals and the work ahead.</p></div>
-  </section>
-  <section class="section section--compact">
+<BaseLayout title="Services | Municipality Drawing, 3D Design, Estimation & Supervision | Rising Design" description="Municipality drawing and design, 3D interior design, estimation and costing, detailed project reports, surveying and site supervision in Kathmandu.">
+  <PageIntro eyebrow="Our services" title="Practical support at every stage of your project" lead="Engage us for a single deliverable or end-to-end support — from survey and drawings to costing and on-site supervision." />
+  <section class="section">
     <div class="container">
-      {services.length > 0 ? <div class="service-grid">{services.map((service: any) => <ServiceCard service={service} />)}</div> : <div class="empty-state"><h2>Services are being updated</h2><p>Contact us and tell us what you need. We’ll help identify a suitable next step.</p></div>}
-      <div style="margin-top: 30px"><a href="/contact" class="button">Ask about a service</a></div>
+      {services.length > 0 ? <div class="service-grid">{services.map((service: any, i: number) => <ServiceCard service={service} index={i} />)}</div> : <div class="empty-state"><h2>Services are being updated</h2><p>Contact us and tell us what you need. We’ll help identify a suitable next step.</p><a class="button" href="/contact">Contact us</a></div>}
     </div>
   </section>
+  <section class="section section--surface">
+    <div class="container">
+      <div class="section-heading section-heading--center"><div class="section-heading__copy"><p class="eyebrow">How it works</p><h2 class="section-title">From first call to finished site</h2></div></div>
+      <ol class="process">
+        {processSteps.map((step, i) => <li class="process__step" data-reveal><span class="process__num">{String(i + 1).padStart(2, '0')}</span><h3>{step.title}</h3><p>{step.text}</p></li>)}
+      </ol>
+    </div>
+  </section>
+  <CtaBanner eyebrow="Not sure which service you need?" title="Tell us about your project — we’ll guide you." />
 </BaseLayout>

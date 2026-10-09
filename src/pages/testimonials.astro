@@ -1,17 +1,18 @@
 ---
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import CtaBanner from '../components/CtaBanner.astro';
 import { rows } from '../lib/data';
 
 const items = await rows<any>(env.DB, 'SELECT client_name,company,quote,photo_key FROM testimonials WHERE is_published=1 ORDER BY created_at DESC');
 ---
-<BaseLayout title="Client Feedback | Rising Design" description="Read client feedback about working with Rising Design and Construction.">
-  <section class="page-intro">
-    <div class="container page-intro__inner"><p class="eyebrow">Client feedback</p><h1 class="section-title">What our clients say</h1><p class="lead">We value clear communication and lasting working relationships.</p></div>
-  </section>
-  <section class="section section--compact">
+<BaseLayout title="Client Feedback | Rising Design & Construction" description="Read what clients say about working with Rising Design and Construction in Kathmandu.">
+  <PageIntro eyebrow="Client feedback" title="What our clients say" lead="Clear communication and lasting relationships matter as much to us as the drawings and the build." />
+  <section class="section">
     <div class="container">
-      {items.length > 0 ? <div class="quote-grid">{items.map((item: any) => <figure class="quote-card"><blockquote>“{item.quote}”</blockquote><figcaption class="quote-card__byline">{item.client_name}{item.company && <span class="quote-card__company">{item.company}</span>}</figcaption></figure>)}</div> : <div class="empty-state"><h2>Client stories are being prepared</h2><p>We’ll share approved feedback here as it becomes available. In the meantime, contact us to discuss your project directly.</p><a class="button" href="/contact" style="margin-top: 18px">Contact us</a></div>}
+      {items.length > 0 ? <div class="quote-grid">{items.map((item: any) => <figure class="quote-card" data-reveal><blockquote>{item.quote}</blockquote><figcaption class="quote-card__byline">{item.photo_key ? <img class="quote-card__avatar" src={`/media/${item.photo_key}`} alt="" loading="lazy" width="48" height="48" /> : <span class="quote-card__avatar" aria-hidden="true">{String(item.client_name).trim().charAt(0)}</span>}<span>{item.client_name}{item.company && <span class="quote-card__company">{item.company}</span>}</span></figcaption></figure>)}</div> : <div class="empty-state"><span class="empty-state__icon" aria-hidden="true">“</span><h2>Client stories are on their way</h2><p>We’ll share approved feedback here soon. In the meantime, we’re happy to talk you through our work directly.</p><a class="button" href="/contact">Contact us</a></div>}
     </div>
   </section>
+  <CtaBanner />
 </BaseLayout>

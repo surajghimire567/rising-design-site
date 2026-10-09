@@ -1,0 +1,25 @@
+---
+import { company, whatsappChatUrl } from '../lib/data';
+const {
+  eyebrow = 'Have a project in mind?',
+  title = 'Let’s plan your next step together.',
+  text = 'Tell us a little about your site and goals. We’ll follow up to understand your needs and recommend a clear way forward.',
+} = Astro.props;
+const phone = company.phones[0];
+---
+<section class="section section--compact">
+  <div class="container">
+    <div class="cta-panel" data-reveal>
+      <div class="cta-panel__copy">
+        <p class="eyebrow eyebrow--light">{eyebrow}</p>
+        <h2 class="section-title">{title}</h2>
+        <p>{text}</p>
+      </div>
+      <div class="cta-panel__actions">
+        <a href="/contact" class="button button--accent">Request a consultation <span aria-hidden="true">→</span></a>
+        <a href={whatsappChatUrl} class="button button--ghost" target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+        {phone && <a class="cta-panel__phone" href={`tel:+${phone.number}`}>or call <strong>{phone.display}</strong></a>}
+      </div>
+    </div>
+  </div>
+</section>

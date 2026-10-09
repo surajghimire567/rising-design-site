@@ -2,78 +2,129 @@
 import { env } from 'cloudflare:workers';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceCard from '../components/ServiceCard.astro';
-import { company, rows } from '../lib/data';
+import ProjectCard from '../components/ProjectCard.astro';
+import CtaBanner from '../components/CtaBanner.astro';
+import { company, faqs, processSteps, rows, strengths } from '../lib/data';
 
-const services = await rows<any>(env.DB, 'SELECT id,title,slug,description,icon,short_label FROM services WHERE is_published=1 ORDER BY sort_order LIMIT 3');
-const studies = await rows<any>(env.DB, 'SELECT title,slug,summary,cover_image_key FROM case_studies WHERE is_published=1 ORDER BY project_date DESC LIMIT 3');
-const testimonials = await rows<any>(env.DB, 'SELECT client_name,company,quote FROM testimonials WHERE is_published=1 ORDER BY created_at DESC LIMIT 2');
+const [services, studies, testimonials] = await Promise.all([
+  rows<any>(env.DB, 'SELECT id,title,slug,description,icon,short_label FROM services WHERE is_published=1 ORDER BY sort_order LIMIT 6'),
+  rows<any>(env.DB, 'SELECT c.title,c.slug,c.summary,c.cover_image_key,c.project_date,s.title AS service_title FROM case_studies c LEFT JOIN services s ON s.id=c.service_id WHERE c.is_published=1 ORDER BY c.project_date DESC LIMIT 3'),
+  rows<any>(env.DB, 'SELECT client_name,company,quote FROM testimonials WHERE is_published=1 ORDER BY created_at DESC LIMIT 2'),
+]);
+const highlights = ['Municipality drawings', '3D interior design', 'Estimation & costing', 'DPR', 'Surveying', 'Site supervision'];
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
 ---
-<BaseLayout title="Engineering Design & Construction Consultation | Rising Design" description="Design, drawing, estimating, surveying and construction consultation for residential and commercial projects in Kathmandu, Nepal.">
+<BaseLayout title="Rising Design & Construction | Engineering Design & Construction in Kathmandu" description="Municipality drawings, 3D interior design, estimation, DPR, surveying and site supervision for homes and commercial buildings in Kathmandu, Nepal.">
   <section class="hero">
+    <div class="hero__grid-bg" aria-hidden="true"></div>
     <div class="container hero__inner">
       <div class="hero__copy">
-        
-        <h1 class="display-title">Design that moves a project <span>forward.</span></h1>
-        <p class="lead">From early ideas to site coordination, we help you understand your options and take the next step with a clear plan.</p>
-        <div class="button-row" style="margin-top: 26px">
-          <a class="button button--accent" href="/contact">Discuss your project <span aria-hidden="true">→</span></a>
-          <a class="button button--outline" href="/services">Explore our services</a>
+        <p class="hero__badge"><span class="hero__badge-dot" aria-hidden="true"></span>Engineering consultancy · {company.city}</p>
+        <h1 class="display-title">Build with clarity, <span>from drawing to site.</span></h1>
+        <p class="lead">Rising Design &amp; Construction helps homeowners and builders plan, design and deliver projects with confidence — with municipality drawings, 3D design, honest estimates and practical site supervision.</p>
+        <div class="button-row">
+          <a class="button button--accent button--lg" href="/contact">Discuss your project <span aria-hidden="true">→</span></a>
+          <a class="button button--ghost button--lg" href="/services">Explore services</a>
         </div>
-        <p class="hero__location">Based in {company.location}</p>
+        <ul class="hero__points">
+          <li>Clear, upfront scope</li>
+          <li>Single point of contact</li>
+          <li>Based in Kathmandu</li>
+        </ul>
       </div>
-      <div class="hero__artwork">
-        <img src="/images/company-flyer.png" alt="Rising Design and Construction service overview" width="2086" height="754" fetchpriority="high" />
+      <div class="hero__visual">
+        <div class="hero__artwork">
+          <img src="/images/company-flyer.png" alt="Rising Design and Construction: municipality drawing and design, 3D interior design, estimation, DPR, surveying and site supervision" width="2086" height="754" fetchpriority="high" decoding="async" />
+        </div>
+        <div class="hero__float hero__float--a"><strong>6</strong><span>core services<br />under one roof</span></div>
+        <div class="hero__float hero__float--b"><span class="hero__float-icon" aria-hidden="true">✓</span><span>Design · Drawing<br />Consulting · Construction</span></div>
       </div>
     </div>
+  </section>
+
+  <section class="ticker" aria-label="What we do">
+    <div class="container"><ul class="ticker__list">{highlights.map((item) => <li>{item}</li>)}</ul></div>
   </section>
 
   <section class="section">
     <div class="container">
       <div class="section-heading">
         <div class="section-heading__copy">
-          <p class="eyebrow">How we can help</p>
-          <h2 class="section-title">Good projects start with clear thinking.</h2>
+          <p class="eyebrow">What we do</p>
+          <h2 class="section-title">Everything your project needs, in one place.</h2>
         </div>
-        <p class="lead">Explore practical support for planning, design, estimates and construction coordination, shaped around your project brief.</p>
+        <p class="lead">From the first drawing to the final inspection, choose a single service or full support shaped around your brief.</p>
       </div>
       {services.length > 0 ? (
-        <div class="service-grid">{services.map((service: any) => <ServiceCard service={service} />)}</div>
+        <div class="service-grid">{services.map((service: any, i: number) => <ServiceCard service={service} index={i} />)}</div>
       ) : (
-        <div class="empty-state" style="margin-top: 28px"><h3>Tell us what you are planning</h3><p>Get in touch and we can discuss the right service for your project.</p><a class="button" href="/contact" style="margin-top: 18px">Start a conversation</a></div>
+        <div class="empty-state"><h3>Tell us what you are planning</h3><p>Get in touch and we can discuss the right service for your project.</p><a class="button" href="/contact">Start a conversation</a></div>
       )}
-      <a class="text-link" href="/services" style="margin-top: 22px">View all services <span aria-hidden="true">→</span></a>
     </div>
   </section>
 
-  <section class="section section--surface">
+  <section class="section section--navy">
+    <div class="container split">
+      <div class="split__intro" data-reveal>
+        <p class="eyebrow eyebrow--light">Why Rising</p>
+        <h2 class="section-title">Engineering with a human perspective.</h2>
+        <p class="lead">We make technical work easy to follow, so you always know what is happening, what it costs and what comes next.</p>
+        <a class="button button--accent" href="/about">About our approach <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="feature-grid">
+        {strengths.map((item) => <article class="feature" data-reveal><span class="feature__check" aria-hidden="true">✓</span><h3>{item.title}</h3><p>{item.text}</p></article>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-heading section-heading--center">
+        <div class="section-heading__copy">
+          <p class="eyebrow">How we work</p>
+          <h2 class="section-title">A simple, transparent process.</h2>
+        </div>
+      </div>
+      <ol class="process">
+        {processSteps.map((step, i) => <li class="process__step" data-reveal><span class="process__num">{String(i + 1).padStart(2, '0')}</span><h3>{step.title}</h3><p>{step.text}</p></li>)}
+      </ol>
+    </div>
+  </section>
+
+  {studies.length > 0 && <section class="section section--surface">
     <div class="container">
       <div class="section-heading">
-        <div class="section-heading__copy"><p class="eyebrow">Selected work</p><h2 class="section-title">Project stories</h2></div>
+        <div class="section-heading__copy"><p class="eyebrow">Selected work</p><h2 class="section-title">Recent projects</h2></div>
         <a class="text-link" href="/case-studies">See all projects <span aria-hidden="true">→</span></a>
       </div>
-      {studies.length > 0 ? (
-        <div class="project-grid">{studies.map((study: any) => (
-          <article class="project-card">
-            <a class="project-card__link" href={`/case-studies/${study.slug}`}>
-              <div class="project-card__image">{study.cover_image_key ? <img src={`/media/${study.cover_image_key}`} alt={`Project: ${study.title}`} loading="lazy" /> : <span aria-hidden="true">⌂</span>}</div>
-              <div class="project-card__copy"><h2>{study.title}</h2><p>{study.summary}</p><span class="text-link">Read project story <span aria-hidden="true">→</span></span></div>
-            </a>
-          </article>
-        ))}</div>
-      ) : (
-        <div class="empty-state" style="margin-top: 28px"><h3>Project stories are being prepared</h3><p>For information about our experience, please contact the team.</p></div>
-      )}
-    </div>
-  </section>
-
-  {testimonials.length > 0 && <section class="section">
-    <div class="container">
-      <div class="section-heading"><div class="section-heading__copy"><p class="eyebrow">Client feedback</p><h2 class="section-title">Good work grows from good communication.</h2></div><a class="text-link" href="/testimonials">More client feedback <span aria-hidden="true">→</span></a></div>
-      <div class="quote-grid">{testimonials.map((item: any) => <figure class="quote-card"><blockquote>“{item.quote}”</blockquote><figcaption class="quote-card__byline">{item.client_name}{item.company && <span class="quote-card__company">{item.company}</span>}</figcaption></figure>)}</div>
+      <div class="project-grid">{studies.map((study: any) => <ProjectCard study={study} />)}</div>
     </div>
   </section>}
 
-  <section class="section section--compact">
-    <div class="container"><div class="cta-panel"><p class="eyebrow eyebrow--light">Have a project in mind?</p><h2 class="section-title">Let’s plan the next step.</h2><p>Tell us a little about your project. We’ll follow up to understand your goals and discuss how we can help.</p><a href="/contact" class="button button--accent">Request a consultation</a></div></div>
+  {testimonials.length > 0 && <section class="section">
+    <div class="container">
+      <div class="section-heading"><div class="section-heading__copy"><p class="eyebrow">Client feedback</p><h2 class="section-title">Trusted by the people we build for.</h2></div><a class="text-link" href="/testimonials">More client feedback <span aria-hidden="true">→</span></a></div>
+      <div class="quote-grid">{testimonials.map((item: any) => <figure class="quote-card" data-reveal><blockquote>{item.quote}</blockquote><figcaption class="quote-card__byline"><span class="quote-card__avatar" aria-hidden="true">{String(item.client_name).trim().charAt(0)}</span><span>{item.client_name}{item.company && <span class="quote-card__company">{item.company}</span>}</span></figcaption></figure>)}</div>
+    </div>
+  </section>}
+
+  <section class="section section--surface">
+    <div class="container faq-layout">
+      <div data-reveal>
+        <p class="eyebrow">FAQ</p>
+        <h2 class="section-title">Questions we often hear.</h2>
+        <p class="lead">Can’t find what you’re looking for? <a href="/contact">Send us a message</a> and we’ll help.</p>
+      </div>
+      <div class="faq">
+        {faqs.map((item, i) => <details class="faq__item" open={i === 0}><summary>{item.q}</summary><p>{item.a}</p></details>)}
+      </div>
+    </div>
   </section>
+
+  <CtaBanner />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema).replace(/</g, '\\u003c')} />
 </BaseLayout>

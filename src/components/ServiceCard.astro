@@ -1,9 +1,14 @@
 ---
-const { service } = Astro.props;
+import ServiceIcon from './ServiceIcon.astro';
+const { service, index } = Astro.props as { service: any; index?: number };
 ---
-<article class="service-card">
-  <div class="service-card__icon" aria-hidden="true">{service.icon}</div>
+<article class="service-card" data-reveal>
+  <div class="service-card__top">
+    <div class="service-card__icon"><ServiceIcon slug={service.slug} fallback={service.icon} /></div>
+    {typeof index === 'number' && <span class="service-card__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
+  </div>
   <p class="eyebrow">{service.short_label || 'Consulting'}</p>
   <h3>{service.title}</h3>
-  <p>{service.description}</p>
+  <p class="service-card__text">{service.description}</p>
+  <a class="service-card__link" href={`/contact?service=${encodeURIComponent(service.title)}`}>Enquire about this service<span class="visually-hidden">: {service.title}</span> <span aria-hidden="true">→</span></a>
 </article>

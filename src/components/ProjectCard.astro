@@ -1,0 +1,20 @@
+---
+const { study, headingLevel = 'h3' } = Astro.props as { study: any; headingLevel?: 'h2' | 'h3' };
+const Heading = headingLevel;
+const year = study.project_date ? String(study.project_date).slice(0, 4) : '';
+---
+<article class="project-card" data-reveal>
+  <a class="project-card__link" href={`/case-studies/${study.slug}`}>
+    <div class="project-card__image">
+      {study.cover_image_key
+        ? <img src={`/media/${study.cover_image_key}`} alt="" loading="lazy" decoding="async" width="800" height="600" />
+        : <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6M9 11h.01M15 11h.01"/></svg>}
+      {(study.service_title || year) && <span class="project-card__tag">{study.service_title || 'Project'}{year && ` · ${year}`}</span>}
+    </div>
+    <div class="project-card__copy">
+      <Heading class="project-card__title">{study.title}</Heading>
+      <p>{study.summary}</p>
+      <span class="text-link">View project <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>

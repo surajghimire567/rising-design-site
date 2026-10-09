@@ -1,15 +1,11 @@
 ---
 import { socialLinks } from '../lib/data';
 import SocialIcon from './SocialIcon.astro';
+const visible = socialLinks.filter((social) => social.href);
 ---
-<div class="social-links" aria-label="Social media">
-  {socialLinks.map((social) => social.href ? (
-    <a class={`social-links__item social-links__item--${social.platform}`} href={social.href} aria-label={social.label} title={social.label} target={social.href.startsWith('https://') ? '_blank' : undefined} rel={social.href.startsWith('https://') ? 'noopener noreferrer' : undefined}>
-      <SocialIcon platform={social.platform} />
-    </a>
-  ) : (
-    <span class={`social-links__item social-links__item--${social.platform} social-links__item--placeholder`} role="img" aria-label={`${social.label} link placeholder`} title={`Add the ${social.label} URL in src/lib/data.ts`}>
-      <SocialIcon platform={social.platform} />
-    </span>
-  ))}
-</div>
+{visible.length > 0 && <ul class="social-links" aria-label="Social media">
+  {visible.map((social) => {
+    const external = social.href.startsWith('https://');
+    return <li><a class={`social-links__item social-links__item--${social.platform}`} href={social.href} aria-label={social.label} title={social.label} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}><SocialIcon platform={social.platform} /></a></li>;
+  })}
+</ul>}

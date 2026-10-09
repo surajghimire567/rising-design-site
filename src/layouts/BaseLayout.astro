@@ -1,79 +1,94 @@
 ---
 import '../styles/global.css';
-import { company, whatsappChatUrl } from '../lib/data';
+import { company, navLinks, socialLinks, whatsappChatUrl } from '../lib/data';
 import SocialIcon from '../components/SocialIcon.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import { env } from 'cloudflare:workers';
 
 const {
-  title = company.name,
-  description = 'Engineering design, drawing and construction consultation in Kathmandu, Nepal.',
+  title = `${company.shortName} | Engineering Design & Construction in Kathmandu`,
+  description = 'Municipality drawings, 3D design, estimation, DPR, surveying and site supervision in Kathmandu, Nepal.',
   canonical = '',
   noIndex = false,
+  image = '/images/company-flyer.png',
+  hideFab = false,
 } = Astro.props;
 const siteUrl = (env.SITE_URL || Astro.site?.toString() || 'https://example.com').replace(/\/+$/, '');
 const pageUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString();
+const imageUrl = new URL(image, siteUrl).toString();
+const phone = company.phones[0];
+const year = new Date().getFullYear();
 const organization = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
+  '@type': 'GeneralContractor',
   name: company.name,
+  alternateName: company.shortName,
   url: siteUrl,
-  telephone: company.phones.map((phone) => phone.display),
+  logo: `${siteUrl}/images/rising-logo.png`,
+  image: imageUrl,
+  telephone: company.phones.map((p) => `+${p.number}`),
   email: company.email,
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Kathmandu',
-    addressCountry: 'NP',
-  },
+  areaServed: 'Kathmandu Valley, Nepal',
+  address: { '@type': 'PostalAddress', streetAddress: company.street, addressLocality: company.city, addressCountry: 'NP' },
+  sameAs: socialLinks.map((s) => s.href).filter((href) => href.startsWith('https://') && !href.includes('wa.me')),
 };
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="robots" content={noIndex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'} />
+    <link rel="canonical" href={pageUrl} />
+    <meta property="og:site_name" content={company.shortName} />
+    <meta property="og:locale" content="en_NP" />
+    <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
     <meta property="og:url" content={pageUrl} />
-    <meta property="og:image" content={`${siteUrl}/images/company-flyer.png`} />
-    <meta name="robots" content={noIndex ? 'noindex,nofollow' : 'index,follow'} />
-    <link rel="canonical" href={pageUrl} />
-    <meta name="theme-color" content="#102846" />
-    <title>{title}</title>
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="theme-color" content="#0b1f3a" />
+    <meta name="format-detection" content="telephone=no" />
     <link rel="icon" type="image/png" href="/images/rising-logo.png" />
+    <link rel="apple-touch-icon" href="/images/rising-logo.png" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <script type="application/ld+json" set:html={JSON.stringify(organization).replace(/</g, '\\u003c')} />
     <script is:inline src="/scripts/site.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="container site-header__brand-row">
-        <a href="/" class="brand" aria-label={`${company.name} home`}>
-          <img src="/images/rising-logo.png" alt="" width="100" height="100" />
-          <span><strong class="brand__name">Rising Design & Construction</strong><small class="brand__tagline">Design · Drawing · Consulting</small></span>
-        </a>
+    <div class="topbar">
+      <div class="container topbar__inner">
+        <p class="topbar__location"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>{company.location}</p>
+        <div class="topbar__links">
+          {phone && <a href={`tel:+${phone.number}`}>{phone.display}</a>}
+          <a href={`mailto:${company.email}`}>{company.email}</a>
+        </div>
       </div>
-      <div class="site-header__navigation">
-        <div class="container site-header__nav-inner">
-          <nav class="site-nav" aria-label="Main navigation">
-            <a href="/">Home</a>
-            <a href="/services">Services</a>
-            <a href="/case-studies">Projects</a>
-            <a href="/testimonials">Testimonials</a>
-            <a href="/about">About</a>
-            <a href="/contact" class="button">Request a consultation</a>
-          </nav>
-          <details class="mobile-nav">
-            <summary aria-label="Open navigation">Menu</summary>
+    </div>
+    <header class="site-header" data-header>
+      <div class="container site-header__inner">
+        <a href="/" class="brand" aria-label={`${company.name} — home`}>
+          <img src="/images/rising-logo.png" alt="" width="56" height="52" />
+          <span class="brand__text"><strong class="brand__name">Rising</strong><small class="brand__tagline">Design &amp; Construction</small></span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+          {navLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+        </nav>
+        <div class="site-header__actions">
+          <a href="/contact" class="button button--sm site-header__cta">Get a consultation</a>
+          <details class="mobile-nav" data-mobile-nav>
+            <summary aria-label="Menu"><span class="mobile-nav__bars" aria-hidden="true"><span></span><span></span><span></span></span></summary>
             <nav class="mobile-nav__panel" aria-label="Mobile navigation">
-              <a href="/">Home</a>
-              <a href="/services">Services</a>
-              <a href="/case-studies">Projects</a>
-              <a href="/testimonials">Testimonials</a>
-              <a href="/about">About</a>
-              <a href="/contact">Request a consultation</a>
+              {navLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+              <a href="/contact" class="button">Request a consultation</a>
+              {phone && <a class="mobile-nav__phone" href={`tel:+${phone.number}`}>Call {phone.display}</a>}
             </nav>
           </details>
         </div>
@@ -82,32 +97,50 @@ const organization = {
     <main id="main"><slot /></main>
     <footer class="site-footer">
       <div class="container site-footer__grid">
-        <div>
-          <h2>{company.name}</h2>
-          <p>Design and construction consultation grounded in clear communication and practical project support.</p>
-          <h3 class="site-footer__social-title">Follow us</h3>
+        <div class="site-footer__brand">
+          <a href="/" class="brand brand--light" aria-label={`${company.name} — home`}>
+            <img src="/images/rising-logo.png" alt="" width="56" height="52" loading="lazy" />
+            <span class="brand__text"><strong class="brand__name">Rising</strong><small class="brand__tagline">Design &amp; Construction</small></span>
+          </a>
+          <p>{company.name} — engineering design, drawing, consulting and construction support from Kathmandu, built on clear communication and practical advice.</p>
           <SocialLinks />
         </div>
         <div>
-          <h3>Get in touch</h3>
-          {company.phones.map((phone) => <a class="site-footer__phone" href={`tel:+${phone.number}`}><span>{phone.label}</span><strong>{phone.display}</strong></a>)}
-          <a href={`mailto:${company.email}`}>{company.email}</a>
-          <p>{company.location}</p>
+          <h2 class="site-footer__title">Services</h2>
+          <ul class="site-footer__list">
+            <li><a href="/services">Municipality drawing &amp; design</a></li>
+            <li><a href="/services">3D interior design</a></li>
+            <li><a href="/services">Estimation &amp; costing</a></li>
+            <li><a href="/services">Detailed project report</a></li>
+            <li><a href="/services">Surveying &amp; supervision</a></li>
+          </ul>
         </div>
         <div>
-          <h3>Explore</h3>
-          <a href="/">Home</a>
-          <a href="/services">Services</a>
-          <a href="/case-studies">Projects</a>
-          <a href="/contact">Consultation request</a>
+          <h2 class="site-footer__title">Company</h2>
+          <ul class="site-footer__list">
+            {navLinks.filter((l) => l.href !== '/').map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="site-footer__title">Get in touch</h2>
+          <ul class="site-footer__list site-footer__contact">
+            {company.phones.map((p) => <li><span>{p.label}</span><a href={`tel:+${p.number}`}>{p.display}</a></li>)}
+            <li><span>Email</span><a href={`mailto:${company.email}`}>{company.email}</a></li>
+            <li><span>Office</span>{company.location}</li>
+          </ul>
         </div>
       </div>
-      <div class="site-footer__bottom"><div class="container">© {new Date().getFullYear()} {company.name}. All rights reserved.</div></div>
+      <div class="site-footer__bottom">
+        <div class="container site-footer__bottom-inner">
+          <p>© {year} {company.name}. All rights reserved.</p>
+          <a href="#main" class="site-footer__top">Back to top <span aria-hidden="true">↑</span></a>
+        </div>
+      </div>
     </footer>
-    <a class="whatsapp-fab" href={whatsappChatUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat with Rising Design on WhatsApp">
+    {!hideFab && <a class="whatsapp-fab" href={whatsappChatUrl} target="_blank" rel="noopener noreferrer" aria-label="Chat with Rising Design on WhatsApp">
       <span class="whatsapp-fab__icon"><SocialIcon platform="whatsapp" /></span>
-      <span class="whatsapp-fab__copy"><span class="whatsapp-fab__eyebrow">Need help with a project?</span><strong>Chat on WhatsApp</strong></span>
-      <span class="whatsapp-fab__arrow" aria-hidden="true">↗</span>
-    </a>
+      <span class="whatsapp-fab__copy"><span class="whatsapp-fab__eyebrow">Have a question?</span><strong>Chat on WhatsApp</strong></span>
+    </a>}
   </body>
 </html>
